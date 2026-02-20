@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking List — GameCenter Admin</title>
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="booking-list.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    /* 1. YOUR SIDEBAR ICON SCALING LOGIC */
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .nav-icon {
+        width: 18px !important;
+        height: 18px !important;
+        stroke-width: 2px;
+    }
+
+    .logo-icon i {
+        width: 24px;
+        height: 24px;
+        color: var(--accent);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Fix for sidebar active state icons */
+    .nav-link.active .nav-icon {
+        color: var(--accent);
+    }
+
+    /* 2. PAGE SPECIFIC STYLES */
+    .booking-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    /* Action Buttons in Table */
+    .action-row { display: flex; gap: 4px; justify-content: center; align-items: center; }
+    .action-btn { 
+      width: 30px; height: 30px; border-radius: 4px; border: 1px solid #444; 
+      display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; 
+    }
+    .btn-edit { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-color: #3b82f6; }
+    .btn-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: #ef4444; }
+
+    /* Flex alignment for other buttons */
+    .btn, .pagination-btns .btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo" style="display:flex; align-items:center; gap:12px;">
+        <div class="logo-icon"><i data-lucide="hexagon"></i></div>
+        <span class="logo-text">GameCenter</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="dashboard.html" class="nav-link">
+        <i data-lucide="layout-dashboard" class="nav-icon"></i>Dashboard
+      </a>
+      <a href="live-console.html" class="nav-link">
+        <i data-lucide="monitor" class="nav-icon"></i>Live Console
+      </a>
+      
+      <div class="nav-section-label">Bookings</div>
+      <a href="add-booking.html" class="nav-link">
+        <i data-lucide="plus-circle" class="nav-icon"></i>New Booking
+      </a>
+      <a href="booking-list.html" class="nav-link active">
+        <i data-lucide="list" class="nav-icon"></i>Booking List
+      </a>
+      
+      <div class="nav-section-label">Finance</div>
+      <a href="inventory.html" class="nav-link">
+        <i data-lucide="package" class="nav-icon"></i>Inventory
+      </a>
+      <a href="expense-tracker.html" class="nav-link">
+        <i data-lucide="indian-rupee" class="nav-icon"></i>Expense Tracker
+      </a>
+      <a href="reports.html" class="nav-link">
+        <i data-lucide="bar-chart-3" class="nav-icon"></i>Reports
+      </a>
+      
+      <div class="nav-section-label">System</div>
+      <a href="master.html" class="nav-link">
+        <i data-lucide="database" class="nav-icon"></i>Master
+      </a>
+      <a href="settings.html" class="nav-link">
+        <i data-lucide="settings" class="nav-icon"></i>Settings
+      </a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div style="display:flex; align-items:center; gap:15px;">
+        <button class="mobile-menu-btn" id="menuBtn"><i data-lucide="menu"></i></button>
+        <div class="topbar-left">
+          <div class="topbar-title">Booking History</div>
+          <div class="topbar-subtitle">Manage all game sessions</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="add-booking.html" class="btn btn-primary btn-sm">
+          <i data-lucide="plus" style="width:16px; height:16px;"></i> New Booking
+        </a>
+      </div>
+    </header>
+
+    <main class="page-body">
+      <div class="booking-stats" id="bookingStats"></div>
+
+      <div class="filter-bar" style="display:flex; gap:10px; margin-bottom: 20px;">
+        <div class="search-wrap" style="position:relative; flex:1; display:flex; align-items:center;">
+          <i data-lucide="search" style="position:absolute; left:12px; width:16px; color:#888;"></i>
+          <input type="text" class="form-input" id="searchInput" placeholder="Search customer, console..." oninput="filterBookings()" style="padding-left:36px; width:100%;">
+        </div>
+        <select class="form-select" id="statusFilter" onchange="filterBookings()">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="clearFilters()">
+          <i data-lucide="refresh-ccw" style="width:14px; height:14px;"></i> Clear
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table id="bookingTable">
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Customer</th>
+              <th>Console</th>
+              <th>Hrs</th>
+              <th>Date</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Total</th>
+              <th>Disc.</th>
+              <th>Price</th>
+              <th>Final</th>
+              <th>Pay</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="bookingTableBody"></tbody>
+        </table>
+      </div>
+<div class="pagination-bar" style="display:flex; justify-content:space-between; align-items:center; padding:20px 0;">
+  <div class="pagination-info" id="paginationInfo" style="color: var(--text-muted); font-size: 14px;">Showing 0 entries</div>
+  <div class="pagination-btns" style="display: flex; gap: 8px;">
+    <button class="btn btn-ghost btn-sm" id="prevPage" onclick="changePage(-1)" style="background: #1a1a1a; border: 1px solid #333; color: #ccc; padding: 6px 12px; border-radius: 6px;">
+      <i data-lucide="chevron-left" class="nav-icon" style="width: 16px; height: 16px;"></i> Prev
+    </button>
+    <button class="btn btn-ghost btn-sm" id="nextPage" onclick="changePage(1)" style="background: #1a1a1a; border: 1px solid #333; color: #ccc; padding: 6px 12px; border-radius: 6px;">
+      Next <i data-lucide="chevron-right" class="nav-icon" style="width: 16px; height: 16px;"></i>
+    </button>
+  </div>
+</div>
+    </main>
+  </div>
+</div>
+
+<div class="modal-overlay" id="viewModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="modal-title">Booking Details</div>
+      <button class="modal-close" onclick="closeModal('viewModal')"><i data-lucide="x"></i></button>
+    </div>
+    <div id="viewModalContent" class="modal-body"></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script> 
+<script src="booking-list.js"></script>
+<script>
+  // Initialize Lucide
+  lucide.createIcons();
+</script>
+</body>
+</html>

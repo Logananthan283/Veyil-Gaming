@@ -1,0 +1,54 @@
+/* Inventory Page Styles */
+.low-stock-alert {
+  background: var(--danger-dim);
+  border: 1px solid var(--danger-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inv-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.inv-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+
+.inv-stat-value { font-size: 22px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px; }
+.inv-stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-top: 3px; }
+
+.stock-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.stock-bar { height: 6px; flex: 1; background: var(--border); border-radius: 3px; overflow: hidden; }
+.stock-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+.action-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.action-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.action-btn.danger { border-color: var(--danger-border); color: var(--danger); }
+.action-btn.danger:hover { background: var(--danger-dim); }
+.action-btn.success { border-color: var(--accent-border); color: var(--accent); }
+.action-btn.success:hover { background: var(--accent-dim); }
+
+@media (max-width: 768px) { .inv-stats { grid-template-columns: 1fr 1fr; } }

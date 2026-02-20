@@ -1,0 +1,237 @@
+/* Booking List Page Styles */
+
+.booking-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.stat-chip {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-chip-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.stat-chip-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.action-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.action-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.action-btn.danger {
+  border-color: var(--danger-border);
+  color: var(--danger);
+}
+
+.action-btn.danger:hover {
+  background: var(--danger-dim);
+}
+
+.action-btn.success {
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.action-btn.success:hover {
+  background: var(--accent-dim);
+}
+
+/* View Modal content */
+.detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.detail-row:last-child { border-bottom: none; }
+.detail-label { color: var(--text-secondary); }
+.detail-value { color: var(--text-primary); font-weight: 500; }
+
+@media (max-width: 768px) {
+  .booking-stats { grid-template-columns: 1fr 1fr; }
+}
+
+@media print {
+    /* Hide everything except the receipt content */
+    body * {
+        visibility: hidden;
+    }
+    
+    #viewModal, #viewModalContent, .receipt-print-area, .receipt-print-area * {
+        visibility: visible;
+    }
+
+    /* Position the receipt at the very top of the printed page */
+    #viewModal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: white !important; /* Force white background for printing */
+    }
+
+    .receipt-print-area {
+        color: black !important; /* Print text in black */
+        width: 100%;
+        max-width: 400px; /* Thermal printer standard width */
+        margin: auto;
+    }
+
+    /* Hide UI elements like the "Close" and "X" buttons on the printout */
+    .modal-header, .modal-footer, .modal-close, button {
+        display: none !important;
+    }
+
+    /* Kill all scrollbars on the printed version */
+    #viewModal .modal, #viewModalContent {
+        max-height: none !important;
+        overflow: visible !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+}
+/* Table UI Overrides */
+.status-dot-active { color: #ff4444; font-size: 18px; } /* Red dot like your image */
+.status-dot-completed { color: #00ff88; font-size: 16px; }
+.td-time { font-size: 11px; color: var(--accent); font-weight: 600; }
+.td-primary { font-weight: 600; color: #fff; }
+.td-secondary { font-size: 11px; color: #888; }
+.payment-badge { font-size: 10px; background: #222; padding: 2px 6px; border-radius: 4px; border: 1px solid #444; }
+
+/* Action Buttons */
+.btn-done { background: #00ff88; color: #000; font-weight: bold; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
+.action-row { display: flex; gap: 5px; justify-content: center; }
+#bookingTable th, #bookingTable td {
+    padding: 12px 15px; /* Adjusts top/bottom and left/right globally */
+    text-align: left;   /* Keeps things aligned neatly */
+}
+
+/* Make the S.No and Actions centered for balance */
+#bookingTable th:first-child, #bookingTable td:first-child,
+#bookingTable th:last-child, #bookingTable td:last-child {
+    text-align: center;
+}
+/* Added missing comma after the 7th child selector */
+#bookingTable th:nth-child(5), 
+#bookingTable td:nth-child(5),
+#bookingTable th:nth-child(6), 
+#bookingTable td:nth-child(6),
+#bookingTable th:nth-child(7), 
+#bookingTable td:nth-child(7), 
+#bookingTable th:nth-child(8), 
+#bookingTable td:nth-child(8), 
+#bookingTable th:nth-child(14), 
+#bookingTable td:nth-child(14) {
+    padding-left: 20px;
+    padding-right: 20px;
+    white-space: nowrap; 
+}
+/* Sidebar Icon Scaling */
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-icon {
+    width: 18px !important;
+    height: 18px !important;
+    stroke-width: 2px;
+}
+
+.logo-icon i {
+    width: 24px;
+    height: 24px;
+    color: var(--accent);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+}
+
+/* Fix for sidebar active state icons */
+.nav-link.active .nav-icon {
+    color: var(--accent);
+}
+/* Ensure pagination buttons match your screenshot */
+.pagination-btns .btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px; /* Space between the arrow and the text */
+    transition: all 0.2s ease;
+}
+
+.pagination-btns .btn:hover:not(:disabled) {
+    background: #252525 !important;
+    border-color: var(--accent) !important;
+    color: #fff !important;
+}
+
+.pagination-btns .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+#bookingStats {
+    display: flex;
+    flex-wrap: nowrap; /* Forces single line */
+    overflow-x: auto; /* Adds scrollbar if content overflows screen */
+    gap: 15px;
+    padding-bottom: 10px;
+    scrollbar-width: thin; /* For Firefox */
+}
+
+/* Optional: Custom scrollbar for Chrome/Safari */
+#bookingStats::-webkit-scrollbar {
+    height: 4px;
+}
+#bookingStats::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+}
+
+.stat-chip {
+    border: 1px solid;
+    border-radius: 12px;
+    transition: transform 0.2s ease;
+}
+
+.stat-chip:hover {
+    transform: translateY(-2px);
+}

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — GameCenter Admin</title>
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="settings.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .sn-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    .sn-btn i { width: 18px; height: 18px; }
+    .sn-btn.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .sn-btn:hover:not(.active) { background: rgba(255,255,255,0.05); }
+    .session-device { display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon"><i data-lucide="hexagon"></i></div>
+        <div><span class="logo-text">GameCenter</span></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="dashboard.html" class="nav-link"><i data-lucide="layout-dashboard"></i>Dashboard</a>
+      <a href="live-console.html" class="nav-link"><i data-lucide="monitor"></i>Live Console</a>
+      <div class="nav-section-label">Bookings</div>
+      <a href="add-booking.html" class="nav-link"><i data-lucide="plus-circle"></i>New Booking</a>
+      <a href="booking-list.html" class="nav-link"><i data-lucide="list"></i>Booking List</a>
+      <div class="nav-section-label">Finance</div>
+      <a href="inventory.html" class="nav-link"><i data-lucide="package"></i>Inventory</a>
+      <a href="expense-tracker.html" class="nav-link"><i data-lucide="indian-rupee"></i>Expense Tracker</a>
+      <a href="reports.html" class="nav-link"><i data-lucide="bar-chart-3"></i>Reports</a>
+      <div class="nav-section-label">System</div>
+      <a href="master.html" class="nav-link"><i data-lucide="database"></i>Master</a>
+      <a href="settings.html" class="nav-link active"><i data-lucide="settings"></i>Settings</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;">
+        <button class="mobile-menu-btn" id="menuBtn">&#9776;</button>
+        <div class="topbar-left">
+          <div class="topbar-title">Account Settings</div>
+          <div class="topbar-subtitle">Manage your profile and system preferences</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary" id="saveBtn" onclick="saveSettings()">
+          <i data-lucide="save" style="width:16px; height:16px; margin-right:8px;"></i> Save Changes
+        </button>
+      </div>
+    </header>
+
+    <main class="page-body">
+      <div class="settings-layout">
+        <div class="settings-nav">
+          <button class="sn-btn active" onclick="switchPanel('profile', this)">
+            <i data-lucide="user"></i> Profile
+          </button>
+          <button class="sn-btn" onclick="switchPanel('business', this)">
+            <i data-lucide="briefcase"></i> Business Info
+          </button>
+          <button class="sn-btn" onclick="switchPanel('password', this)">
+            <i data-lucide="key-round"></i> Password
+          </button>
+          <button class="sn-btn" onclick="switchPanel('notifications', this)">
+            <i data-lucide="bell"></i> Notifications
+          </button>
+          <button class="sn-btn" onclick="switchPanel('security', this)">
+            <i data-lucide="shield-check"></i> Security
+          </button>
+        </div>
+
+        <div class="settings-content">
+          <div class="settings-panel active" id="panel-profile">
+            <div class="card">
+              <div class="avatar-section">
+                <div class="big-avatar" id="bigAvatar">AU</div>
+                <div><button class="btn btn-secondary btn-sm">Change Photo</button></div>
+              </div>
+              <hr style="border:none;border-top:1px solid var(--border);margin:20px 0;">
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-input" id="firstName"></div>
+                <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-input" id="lastName"></div>
+              </div>
+              <div class="form-group"><label class="form-label">Email Address</label><input type="email" class="form-input" id="email"></div>
+              <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-input" id="phone"></div>
+            </div>
+          </div>
+
+          <div class="settings-panel" id="panel-business">
+            <div class="card">
+              <div class="form-group"><label class="form-label">Gaming Center Name</label><input type="text" class="form-input" id="centerName"></div>
+              <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Currency</label>
+                    <select class="form-select" id="currency"><option value="INR">INR (₹)</option><option value="USD">USD ($)</option></select>
+                </div>
+                <div class="form-group"><label class="form-label">Tax Rate (%)</label><input type="number" class="form-input" id="taxRate"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">Opening Time</label><input type="time" class="form-input" id="openTime"></div>
+                <div class="form-group"><label class="form-label">Closing Time</label><input type="time" class="form-input" id="closeTime"></div>
+              </div>
+              <div class="form-group"><label class="form-label">Address</label><textarea class="form-textarea" id="address" rows="3"></textarea></div>
+            </div>
+          </div>
+
+          <div class="settings-panel" id="panel-password">
+            <div class="card">
+              <div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input" id="newPass" oninput="checkPassword()"></div>
+              <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input" id="confirmPass" oninput="checkPassword()"></div>
+              <div id="passStrength"></div>
+            </div>
+          </div>
+
+          <div class="settings-panel" id="panel-notifications">
+            <div class="card">
+              <div class="toggle-wrap">
+                <div class="toggle-info"><h4>Email Notifications</h4><p>Send booking summaries to admin email.</p></div>
+                <label class="toggle"><input type="checkbox" id="notifEmail"><span class="toggle-slider"></span></label>
+              </div>
+              <div class="toggle-wrap">
+                <div class="toggle-info"><h4>SMS Alerts</h4><p>Critical alerts for hardware or stock.</p></div>
+                <label class="toggle"><input type="checkbox" id="notifSMS"><span class="toggle-slider"></span></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-panel" id="panel-security">
+            <div class="card">
+              <div class="toggle-wrap">
+                <div class="toggle-info"><h4>Two-Factor Auth</h4><p>Enable extra security for login.</p></div>
+                <label class="toggle"><input type="checkbox" id="sec2FA"><span class="toggle-slider"></span></label>
+              </div>
+              <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+              <h4><i data-lucide="laptop" style="width:16px; vertical-align:middle; margin-right:8px;"></i> Active Sessions</h4>
+              <div class="session-device">
+                <i data-lucide="monitor" style="color:var(--accent);"></i>
+                <div style="flex:1">
+                  <div style="font-size:13px; font-weight:600;">Windows PC — Chrome</div>
+                  <div style="font-size:11px; color:gray;">Mumbai, India • Active Now</div>
+                </div>
+                <span style="color:var(--accent); font-size:12px;">Current</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="config.js"></script>
+<script src="settings.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+    });
+</script>
+</body>
+</html>

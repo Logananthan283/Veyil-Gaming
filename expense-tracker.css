@@ -1,0 +1,87 @@
+/* Expense Tracker Styles */
+.exp-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.exp-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+.exp-stat-value { font-size: 22px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px; }
+.exp-stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-top: 3px; }
+
+.exp-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 20px;
+  align-items: start;
+}
+
+.cat-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.cat-bar-row:last-child { border-bottom: none; }
+.cat-bar-header { display: flex; justify-content: space-between; font-size: 12px; }
+.cat-bar-name { color: var(--text-secondary); }
+.cat-bar-val { color: var(--text-primary); font-weight: 600; }
+.cat-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.cat-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+
+.action-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.action-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.action-btn.danger { border-color: var(--danger-border); color: var(--danger); }
+.action-btn.danger:hover { background: var(--danger-dim); }
+
+@media (max-width: 900px) {
+  .exp-layout { grid-template-columns: 1fr; }
+  .exp-stats { grid-template-columns: 1fr 1fr; }
+}
+
+/* Sidebar Icon Scaling */
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-icon {
+    width: 18px !important;
+    height: 18px !important;
+    stroke-width: 2px;
+}
+
+.logo-icon i {
+    width: 24px;
+    height: 24px;
+    color: var(--accent);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+}
+
+/* Fix for sidebar active state icons */
+.nav-link.active .nav-icon {
+    color: var(--accent);
+}

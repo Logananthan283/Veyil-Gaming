@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports — GameCenter Admin</title>
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="reports.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app-wrapper">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon"><i data-lucide="hexagon"></i></div>
+        <div><span class="logo-text">GameCenter</span></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="dashboard.html" class="nav-link"><i data-lucide="layout-dashboard" class="nav-icon"></i>Dashboard</a>
+      <a href="live-console.html" class="nav-link"><i data-lucide="monitor" class="nav-icon"></i>Live Console</a>
+      <div class="nav-section-label">Bookings</div>
+      <a href="add-booking.html" class="nav-link"><i data-lucide="plus-circle" class="nav-icon"></i>New Booking</a>
+      <a href="booking-list.html" class="nav-link"><i data-lucide="list" class="nav-icon"></i>Booking List</a>
+      <div class="nav-section-label">Finance</div>
+      <a href="inventory.html" class="nav-link"><i data-lucide="package" class="nav-icon"></i>Inventory</a>
+      <a href="expense-tracker.html" class="nav-link"><i data-lucide="indian-rupee" class="nav-icon"></i>Expense Tracker</a>
+      <a href="reports.html" class="nav-link active"><i data-lucide="bar-chart-3" class="nav-icon"></i>Reports</a>
+      <div class="nav-section-label">System</div>
+      <a href="master.html" class="nav-link"><i data-lucide="database" class="nav-icon"></i>Master</a>
+      <a href="settings.html" class="nav-link"><i data-lucide="settings" class="nav-icon"></i>Settings</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;">
+        <button class="mobile-menu-btn" id="menuBtn">&#9776;</button>
+        <div class="topbar-left">
+          <div class="topbar-title">Reports Center</div>
+          <div class="topbar-subtitle">Operational & Financial Insights</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-secondary btn-sm" onclick="window.print()">
+          <i data-lucide="printer" style="width:14px; margin-right:5px;"></i> Print Summary
+        </button>
+      </div>
+    </header>
+
+    <main class="page-body">
+      <div class="report-kpis" id="reportKpis"></div>
+
+      <div class="report-charts-grid">
+        <div class="card" style="grid-column: 1 / -1;">
+          <div class="card-header">
+            <div><div class="card-title">Revenue vs Expenses</div><div class="card-subtitle">Last 10 Days</div></div>
+          </div>
+          <div class="chart-container" style="height:250px;"><canvas id="revExpChart"></canvas></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Console Performance</div></div>
+          <div class="chart-container" style="height:200px;"><canvas id="consoleRevChart"></canvas></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Payment Methods</div></div>
+          <div id="paymentMethodList"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:32px;">
+        <h3 style="margin-bottom:16px; font-size:18px; font-weight:700;">Operational Reports</h3>
+        <div class="report-cards-grid" id="reportCards"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="modal-overlay" id="reportModal">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <div class="modal-title" id="modalReportTitle">Report Details</div>
+      <button class="modal-close" onclick="closeReportModal()">×</button>
+    </div>
+    <div id="modalReportContent" style="padding:20px; max-height:60vh; overflow-y:auto;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeReportModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script> 
+<script src="reports.js"></script>
+</body>
+</html>

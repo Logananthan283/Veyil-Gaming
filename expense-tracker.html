@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker — GameCenter Admin</title>
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="expense-tracker.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app-wrapper">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon"><i data-lucide="hexagon"></i></div>
+        <div><span class="logo-text">GameCenter</span></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="dashboard.html" class="nav-link"><i data-lucide="layout-dashboard" class="nav-icon"></i>Dashboard</a>
+      <a href="live-console.html" class="nav-link"><i data-lucide="monitor" class="nav-icon"></i>Live Console</a>
+      <div class="nav-section-label">Bookings</div>
+      <a href="add-booking.html" class="nav-link"><i data-lucide="plus-circle" class="nav-icon"></i>New Booking</a>
+      <a href="booking-list.html" class="nav-link"><i data-lucide="list" class="nav-icon"></i>Booking List</a>
+      <div class="nav-section-label">Finance</div>
+      <a href="inventory.html" class="nav-link"><i data-lucide="package" class="nav-icon"></i>Inventory</a>
+      <a href="expense-tracker.html" class="nav-link active"><i data-lucide="indian-rupee" class="nav-icon"></i>Expense Tracker</a>
+      <a href="reports.html" class="nav-link"><i data-lucide="bar-chart-3" class="nav-icon"></i>Reports</a>
+      <div class="nav-section-label">System</div>
+      <a href="master.html" class="nav-link"><i data-lucide="database" class="nav-icon"></i>Master</a>
+      <a href="settings.html" class="nav-link"><i data-lucide="settings" class="nav-icon"></i>Settings</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;">
+        <button class="mobile-menu-btn" id="menuBtn">&#9776;</button>
+        <div class="topbar-left">
+          <div class="topbar-title">Expense Tracker</div>
+          <div class="topbar-subtitle">Track and manage all operational expenses</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="openAddModal()">
+          <i data-lucide="plus" style="width:14px; height:14px;"></i>
+          Add Expense
+        </button>
+      </div>
+    </header>
+
+    <main class="page-body">
+      <div class="exp-stats" id="expStats"></div>
+
+      <div class="exp-layout">
+        <div style="flex:1;">
+          <div class="filter-bar">
+            <div class="search-wrap">
+              <i data-lucide="search" style="position:absolute; left:10px; top:10px; width:16px; color:#94a3b8;"></i>
+              <input type="text" class="form-input" id="searchInput" placeholder="Search expenses..." oninput="filterExpenses()" style="padding-left:35px;">
+            </div>
+            <select class="form-select" style="width:auto;" id="catFilter" onchange="filterExpenses()">
+              <option value="">All Categories</option>
+              <option>Utilities</option><option>Inventory</option><option>Maintenance</option>
+              <option>Rent</option><option>Salaries</option><option>Internet</option><option>Equipment</option><option>Marketing</option>
+            </select>
+            <select class="form-select" style="width:auto;" id="statusFilter" onchange="filterExpenses()">
+              <option value="">All Status</option>
+              <option value="paid">Paid</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th><th>Category</th><th>Vendor</th><th>Amount</th><th>Mode</th><th>Status</th><th>Notes</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="expTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="min-width:280px; align-self: flex-start;">
+          <div class="card-title" style="margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+            <i data-lucide="pie-chart" style="width:18px;"></i> By Category
+          </div>
+          <div id="catBreakdown"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="modal-overlay" id="expModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="expModalTitle">Add Expense</div>
+      <button class="modal-close" onclick="closeModal('expModal')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="eDate"></div>
+      <div class="form-group"><label class="form-label">Category *</label>
+        <select class="form-select" id="eCat">
+          <option>Utilities</option><option>Inventory</option><option>Maintenance</option><option>Rent</option><option>Salaries</option><option>Internet</option><option>Equipment</option><option>Marketing</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Vendor *</label><input type="text" class="form-input" id="eVendor" placeholder="e.g. Amazon"></div>
+      <div class="form-group"><label class="form-label">Amount (₹) *</label><input type="number" class="form-input" id="eAmount" placeholder="0"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Payment Mode</label>
+        <select class="form-select" id="ePayMode">
+          <option>Cash</option><option>Bank Transfer</option><option>UPI</option><option>Card</option><option>Auto Debit</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select class="form-select" id="eStatus">
+          <option value="paid">Paid</option><option value="pending">Pending</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="eNotes" rows="2"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('expModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveExpense()">Save Expense</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script> 
+<script src="expense-tracker.js"></script>
+</body>
+</html>

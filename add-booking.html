@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Booking — GameCenter Admin</title>
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="add-booking.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app-wrapper">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon"><i data-lucide="hexagon"></i></div>
+        <div><span class="logo-text">GameCenter</span></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="dashboard.html" class="nav-link">
+        <i data-lucide="layout-dashboard" class="nav-icon"></i>Dashboard
+      </a>
+      <a href="live-console.html" class="nav-link">
+        <i data-lucide="monitor" class="nav-icon"></i>Live Console
+      </a>
+      <div class="nav-section-label">Bookings</div>
+      <a href="add-booking.html" class="nav-link active">
+        <i data-lucide="plus-circle" class="nav-icon"></i>New Booking
+      </a>
+      <a href="booking-list.html" class="nav-link">
+        <i data-lucide="list" class="nav-icon"></i>Booking List
+      </a>
+      <div class="nav-section-label">Finance</div>
+      <a href="inventory.html" class="nav-link">
+        <i data-lucide="package" class="nav-icon"></i>Inventory
+      </a>
+      <a href="expense-tracker.html" class="nav-link">
+        <i data-lucide="indian-rupee" class="nav-icon"></i>Expense Tracker
+      </a>
+      <a href="reports.html" class="nav-link">
+        <i data-lucide="bar-chart-3" class="nav-icon"></i>Reports
+      </a>
+      <div class="nav-section-label">System</div>
+      <a href="master.html" class="nav-link">
+        <i data-lucide="database" class="nav-icon"></i>Master
+      </a>
+      <a href="settings.html" class="nav-link">
+        <i data-lucide="settings" class="nav-icon"></i>Settings
+      </a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <button class="mobile-menu-btn" id="menuBtn"><i data-lucide="menu"></i></button>
+      <div class="topbar-title">New Booking</div>
+    </header>
+
+    <main class="page-body">
+      <div class="booking-layout">
+        <div class="booking-form-col">
+          
+          <div class="card mb-20">
+            <div class="section-header">
+                <i data-lucide="user" style="width:16px; margin-right:8px; color:var(--accent);"></i>
+                <span class="section-title">Customer Information</span>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input type="text" class="form-input" id="customerName" placeholder="Customer Name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone Number *</label>
+                <input type="tel" class="form-input" id="customerPhone" placeholder="Mobile">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Customer Place *</label>
+                <input type="text" class="form-input" id="customerPlace" placeholder="e.g., Downtown">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date *</label>
+                <input type="date" class="form-input" id="bookingDate">
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-20">
+            <div class="section-header">
+                <i data-lucide="gamepad-2" style="width:16px; margin-right:8px; color:var(--accent);"></i>
+                <span class="section-title">Session Setup</span>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Console Name *</label>
+                <select class="form-select" id="consoleSelect" onchange="updateSummary()"></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">No of Players *</label>
+                <select class="form-select" id="numPlayers" onchange="updateSummary()"></select>
+              </div>
+            </div>
+
+            <div class="form-group mt-10">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <label class="form-label">Select Hours (Slider) *</label>
+                <span id="durationLabel" class="badge-active">0.5 hrs</span>
+              </div>
+              <input type="range" id="durationSlider" class="duration-slider" min="0.5" max="12" step="0.5" value="0.5">
+            </div>
+
+            <div class="form-row mt-20">
+              <div class="form-group">
+                <label class="form-label">Start Time *</label>
+                <div class="custom-time-wrapper">
+                  <input type="time" class="form-input time-input-hidden" id="startTime" onchange="handleTimeChange()">
+                  <div id="startTime12h" class="time-display-overlay">--:-- --</div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Estimated End Time</label>
+                <div class="custom-time-wrapper">
+                  <input type="time" class="form-input time-input-hidden" id="endTimeInput" onchange="handleEndTimeManualChange(this.value)">
+                  <div id="endTime12h" class="time-display-overlay">--:-- --</div>
+                </div>
+                <input type="hidden" id="endTime">
+              </div>
+            </div>
+
+            <div class="form-group mt-15">
+                <label class="form-label">Total Duration Played</label>
+                <input type="text" id="totalDurationDisplay" class="form-input" readonly 
+                       style="background: #000; color: var(--accent); border: 2px solid var(--accent); font-weight: 800; text-align: center;">
+            </div>
+          </div>
+
+          <div id="additionalPlayersContainer" class="card mb-20" style="display: none;">
+  <div class="section-header" style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+    <i data-lucide="users" class="nav-icon" style="color: var(--accent);"></i>
+    <span class="section-title" style="font-weight: 700;">Additional Player Details</span>
+  </div>
+  
+  <div id="playerFieldsList" style="display: flex; flex-direction: column; gap: 12px;">
+    </div>
+</div>
+
+          <div class="card">
+            <div class="section-header">
+                <i data-lucide="coffee" style="width:16px; margin-right:8px; color:var(--accent);"></i>
+                <span class="section-title">Food & Beverages (Optional)</span>
+            </div>
+            <div class="fb-grid-compact" id="fbGrid"></div>
+          </div>
+        </div>
+
+        <div class="booking-summary-col">
+          <div class="summary-card">
+            <div style="font-weight:700;margin-bottom:20px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="shopping-cart" style="width:18px;"></i> Order Summary
+            </div>
+            <div class="summary-rows">
+              <div class="summary-row"><span>Console Cost</span><span id="sumConsoleCost">₹0.00</span></div>
+              <div class="summary-row"><span>F&B Cost</span><span id="sumFB">₹0.00</span></div>
+              <div class="summary-row discount-row">
+                <span>Discount</span>
+                <input type="number" id="discountInput" class="discount-styled" value="0" oninput="updateSummary()">
+              </div>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-total"><span>Final Cost</span><span id="sumTotal">₹0.00</span></div>
+            
+            <label class="form-label mt-20">Payment Type *</label>
+            <div class="payment-grid">
+              <button class="pay-btn active" id="payCash" onclick="setPayment('Cash')">CASH</button>
+              <button class="pay-btn" id="payUPI" onclick="setPayment('UPI')">UPI</button>
+              <button class="pay-btn" id="payMixed" onclick="setPayment('Mixed')">MIXED</button>
+            </div>
+
+            <div id="mixedInputs" class="mixed-container" style="display:none;">
+              <div class="mixed-row">
+                <label>Cash Amount</label>
+                <input type="number" id="mixCash" class="form-input-sm" oninput="calculateMixedBalance()">
+              </div>
+              <div class="mixed-row">
+                <label>UPI Amount</label>
+                <input type="number" id="mixUPI" class="form-input-sm" readonly>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" style="width:100%; margin-top:20px; padding: 15px; font-weight: bold;" onclick="confirmBooking()">SAVE BOOKING</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="add-booking.js"></script>
+<script>
+    // Initialize Lucide Icons
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+    });
+</script>
+</body>
+</html>

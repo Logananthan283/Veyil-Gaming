@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory — GameCenter Admin</title>
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="inventory.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app-wrapper">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon"><i data-lucide="hexagon"></i></div>
+        <div><span class="logo-text">GameCenter</span></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="dashboard.html" class="nav-link"><i data-lucide="layout-dashboard" class="nav-icon"></i>Dashboard</a>
+      <a href="live-console.html" class="nav-link"><i data-lucide="monitor" class="nav-icon"></i>Live Console</a>
+      <div class="nav-section-label">Bookings</div>
+      <a href="add-booking.html" class="nav-link"><i data-lucide="plus-circle" class="nav-icon"></i>New Booking</a>
+      <a href="booking-list.html" class="nav-link"><i data-lucide="list" class="nav-icon"></i>Booking List</a>
+      <div class="nav-section-label">Finance</div>
+      <a href="inventory.html" class="nav-link active"><i data-lucide="package" class="nav-icon"></i>Inventory</a>
+      <a href="expense-tracker.html" class="nav-link"><i data-lucide="indian-rupee" class="nav-icon"></i>Expense Tracker</a>
+      <a href="reports.html" class="nav-link"><i data-lucide="bar-chart-3" class="nav-icon"></i>Reports</a>
+      <div class="nav-section-label">System</div>
+      <a href="master.html" class="nav-link"><i data-lucide="database" class="nav-icon"></i>Master</a>
+      <a href="settings.html" class="nav-link"><i data-lucide="settings" class="nav-icon"></i>Settings</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;">
+        <button class="mobile-menu-btn" id="menuBtn">&#9776;</button>
+        <div class="topbar-left">
+          <div class="topbar-title">Inventory</div>
+          <div class="topbar-subtitle">Food, beverages & supplies management</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="openAddModal()">
+          <i data-lucide="plus" style="width: 16px; height: 16px; margin-right: 4px;"></i>
+          Add Item
+        </button>
+      </div>
+    </header>
+
+    <main class="page-body">
+      <div id="lowStockAlert" class="low-stock-alert" style="display:none;"></div>
+      <div class="inv-stats" id="invStats"></div>
+
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <i data-lucide="search" class="search-icon-lucide" style="position: absolute; left: 10px; top: 10px; width: 16px; color: #94a3b8;"></i>
+          <input type="text" class="form-input" id="searchInput" placeholder="Search items..." oninput="filterItems()" style="padding-left: 35px;">
+        </div>
+        <select class="form-select" style="width:auto;" id="catFilter" onchange="filterItems()">
+          <option value="">All Categories</option>
+          <option>Beverages</option>
+          <option>Energy Drinks</option>
+          <option>Snacks</option>
+          <option>Hot Beverages</option>
+          <option>Food</option>
+        </select>
+        <select class="form-select" style="width:auto;" id="stockFilter" onchange="filterItems()">
+          <option value="">All Stock</option>
+          <option value="low">Low Stock</option>
+          <option value="ok">In Stock</option>
+        </select>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Low Level</th>
+              <th>Value</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="invTableBody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="modal-overlay" id="itemModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="itemModalTitle">Add Item</div>
+      <button class="modal-close" onclick="closeModal('itemModal')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Item Name *</label><input type="text" class="form-input" id="iName"></div>
+      <div class="form-group"><label class="form-label">Category *</label>
+        <select class="form-select" id="iCat">
+          <option>Beverages</option><option>Energy Drinks</option><option>Snacks</option><option>Hot Beverages</option><option>Food</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Price (₹) *</label><input type="number" class="form-input" id="iPrice"></div>
+      <div class="form-group"><label class="form-label">Stock *</label><input type="number" class="form-input" id="iStock"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Low Stock Level</label><input type="number" class="form-input" id="iLowLevel" value="5"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('itemModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveItem()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script> 
+<script src="inventory.js"></script>
+</body>
+</html>

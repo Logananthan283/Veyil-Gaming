@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GameCenter Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #121212;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    .landing {
+      text-align: center;
+      max-width: 480px;
+      padding: 40px 24px;
+    }
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(0,255,136,0.1);
+      border: 1px solid rgba(0,255,136,0.25);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .logo-text { font-size: 24px; font-weight: 700; }
+    .tagline { font-size: 14px; color: #888; margin-bottom: 36px; line-height: 1.6; }
+    .enter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: #00ff88;
+      color: #000;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.15s;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+    }
+    .enter-btn:hover { background: #00e87c; }
+    .modules {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 36px;
+      text-align: left;
+    }
+    .module-link {
+      padding: 12px 14px;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #888;
+      text-decoration: none;
+      transition: all 0.15s;
+      display: block;
+    }
+    .module-link:hover { border-color: rgba(0,255,136,0.25); color: #00ff88; }
+    .module-link span { display: block; font-size: 16px; margin-bottom: 4px; }
+    .version { margin-top: 32px; font-size: 11px; color: #444; }
+    .redirect-msg { font-size: 13px; color: #555; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="landing">
+    <div class="logo-wrap">
+      <div class="logo-icon">⬡</div>
+      <div class="logo-text">GameCenter Admin</div>
+    </div>
+    <p class="tagline">Professional Gaming Center Management System.<br>Built with pure HTML, CSS & JavaScript.</p>
+    <div class="redirect-msg" id="redirectMsg">Redirecting to Dashboard...</div>
+    <a href="dashboard.html" class="enter-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Enter Dashboard
+    </a>
+    <div class="modules">
+      <a href="dashboard.html" class="module-link"><span>📊</span>Dashboard</a>
+      <a href="live-console.html" class="module-link"><span>🎮</span>Live Console</a>
+      <a href="add-booking.html" class="module-link"><span>➕</span>New Booking</a>
+      <a href="booking-list.html" class="module-link"><span>📋</span>Booking List</a>
+      <a href="inventory.html" class="module-link"><span>📦</span>Inventory</a>
+      <a href="expense-tracker.html" class="module-link"><span>💰</span>Expenses</a>
+      <a href="reports.html" class="module-link"><span>📈</span>Reports</a>
+      <a href="master.html" class="module-link"><span>⚙️</span>Master</a>
+      <a href="settings.html" class="module-link"><span>👤</span>Settings</a>
+    </div>
+    <div class="version">v1.0.0 — Pure Vanilla HTML/CSS/JS</div>
+  </div>
+  <script>
+    // Auto redirect after 2 seconds
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
+  </script>
+</body>
+</html>

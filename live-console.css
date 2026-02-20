@@ -1,0 +1,146 @@
+/* Live Console Page Styles */
+.lc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.status-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.status-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--bg-card);
+}
+
+.status-chip.active-chip { background: var(--accent-dim); border-color: var(--accent-border); color: var(--accent); }
+.status-chip.available-chip { color: var(--text-muted); }
+
+.sc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sc-dot.active { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+.sc-dot.available { background: var(--text-muted); }
+
+/* Filter Tabs */
+.filter-tabs { display: flex; gap: 5px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 4px; }
+.filter-tab { padding: 6px 14px; border-radius: 5px; border: none; background: transparent; color: var(--text-muted); font-size: 12px; cursor: pointer; }
+.filter-tab.active { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-border); }
+
+/* Console Grid */
+.console-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+
+/* Console Card */
+.console-card { background: var(--bg-card); border-radius: var(--radius-md); padding: 20px; display: flex; flex-direction: column; gap: 15px; border: 1px solid var(--border); transition: 0.2s; }
+.console-card.active-card { border-color: var(--accent-border); background: linear-gradient(145deg, #111, rgba(0,255,136,0.03)); }
+
+.cc-top { display: flex; align-items: center; justify-content: space-between; }
+.cc-icon-wrap { display: flex; align-items: center; gap: 12px; }
+.cc-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #222; font-size: 20px; }
+.cc-icon.active-icon { background: rgba(0,255,136,0.1); color: var(--accent); }
+
+.cc-name { font-size: 14px; font-weight: 700; color: #fff; }
+.cc-type { font-size: 11px; color: var(--text-muted); }
+
+.cc-status-badge { display: flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; background: #111; }
+
+.cc-session { background: #0a0a0a; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px; border: 1px solid #1a1a1a; }
+.cc-session-row { display: flex; justify-content: space-between; font-size: 12px; }
+.cc-session-label { color: var(--text-muted); }
+.cc-session-val { color: #fff; font-weight: 600; }
+
+.cc-timer { font-family: 'Courier New', monospace; font-size: 20px; font-weight: 700; text-align: center; margin: 5px 0; }
+.cc-timer.active-timer { color: var(--accent); }
+.cc-timer.urgent-timer { color: var(--danger); animation: pulse 1s infinite alternate; }
+
+@keyframes pulse { from { opacity: 1; } to { opacity: 0.4; } }
+
+.time-progress { height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
+.time-progress-bar { height: 100%; transition: width 1s linear; }
+
+.cc-empty { padding: 20px; text-align: center; color: #333; font-weight: 700; letter-spacing: 1px; }
+
+.cc-action { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid; cursor: pointer; font-weight: 600; font-family: inherit; transition: 0.2s; }
+.cc-action.book-btn { background: rgba(0,255,136,0.05); border-color: var(--accent-border); color: var(--accent); }
+.cc-action.book-btn:hover { background: var(--accent); color: #000; }
+.cc-action.end-btn { background: #111; border-color: #333; color: #888; }
+.cc-action.end-btn:hover { border-color: var(--danger); color: var(--danger); }
+#consoleGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsive columns */
+    gap: 20px;
+    padding: 10px 0;
+}
+
+/* Hover effects for buttons */
+.cc-action:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.end-btn:hover {
+    background: #ef4444 !important;
+    color: #fff !important;
+}
+
+.book-btn:hover {
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+}
+.filter-tabs {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 5px;
+    border-radius: 10px;
+    display: inline-flex;
+    border: 1px solid #222;
+}
+
+.filter-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    color: #888;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.filter-tab i {
+    transition: transform 0.2s ease;
+}
+
+.filter-tab:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Active State - Matches your accent color */
+.filter-tab.active {
+    background: var(--accent); /* Uses your main green/blue accent */
+    color: #000; /* Black text for better contrast on bright background */
+}
+
+.filter-tab.active i {
+    color: #000;
+}
+
+.filter-tab.active:hover {
+    background: var(--accent);
+    opacity: 0.9;
+}
