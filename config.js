@@ -4,5 +4,9 @@ var _supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 
 // Initialize and attach to window
 window.supabase = window.supabase.createClient(_supabaseUrl, _supabaseKey, {
-  auth: { persistSession: false }
+  auth: { 
+    persistSession: true, // MUST BE TRUE
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
 });

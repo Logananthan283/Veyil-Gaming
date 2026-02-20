@@ -9,8 +9,25 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* Prevents white flash or broken data showing before auth is confirmed */
+    #auth-guard-overlay {
+      position: fixed;
+      inset: 0;
+      background: #0f172a;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #00ff88;
+      font-family: sans-serif;
+    }
+  </style>
 </head>
 <body>
+
+<div id="auth-guard-overlay">Checking Access...</div>
+
 <div class="app-wrapper">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -60,16 +77,25 @@
         <div class="topbar-title">Dashboard</div>
         <div class="topbar-subtitle">Real-time business overview</div>
       </div>
-      <div class="topbar-right">
-        <button class="btn btn-secondary btn-sm" onclick="initDashboard()">
+      <div class="topbar-right" style="display: flex; align-items: center; gap: 15px;">
+        
+        <div id="profilePill" style="display: none; align-items: center; gap: 10px; background: #1e293b; padding: 5px 12px; border-radius: 50px; border: 1px solid #334155;">
+          <div id="adminInitial" style="width: 26px; height: 26px; background: #00ff88; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px;">?</div>
+          <span id="adminNameDisplay" style="font-size: 13px; font-weight: 500; color: #f1f5f9;">Admin</span>
+        </div>
+
+        <button class="btn btn-secondary btn-sm" onclick="location.reload()">
           <i data-lucide="refresh-cw" style="width:14px; margin-right:6px;"></i> Refresh
+        </button>
+
+        <button class="btn btn-ghost btn-sm" onclick="handleLogout()" style="color: #f87171; padding: 8px;" title="Logout">
+          <i data-lucide="log-out" style="width:18px;"></i>
         </button>
       </div>
     </header>
 
     <main class="page-body">
       <div class="kpi-grid mb-24" id="kpiGrid"></div>
-
       <div class="charts-row mb-24">
         <div class="card">
           <div class="card-title">Revenue Trend</div>
@@ -80,7 +106,6 @@
           <div class="chart-container" style="height:250px;"><canvas id="peakChart"></canvas></div>
         </div>
       </div>
-
       <div class="bottom-row">
         <div class="card">
           <div class="card-header">
@@ -89,34 +114,12 @@
           </div>
           <div id="recentBookings"></div>
         </div>
-
         <div style="display:flex; flex-direction:column; gap:20px;">
           <div class="card">
             <div class="card-title mb-16">Quick Actions</div>
-            <div class="quick-actions-grid">
-              <a href="reports.html" class="quick-action-btn">
-                <i data-lucide="file-text"></i>
-                <span class="qa-title">Reports</span>
-                <span class="qa-sub">Daily summary</span>
-              </a>
-              <a href="expense-tracker.html" class="quick-action-btn">
-                <i data-lucide="trending-down"></i>
-                <span class="qa-title">Expense</span>
-                <span class="qa-sub">Log purchase</span>
-              </a>
-              <a href="inventory.html" class="quick-action-btn">
-                <i data-lucide="archive"></i>
-                <span class="qa-title">Stock</span>
-                <span class="qa-sub">Inventory</span>
-              </a>
-              <a href="live-console.html" class="quick-action-btn">
-                <i data-lucide="play-circle"></i>
-                <span class="qa-title">Live Grid</span>
-                <span class="qa-sub">Monitor active</span>
-              </a>
-            </div>
+            <div class="quick-actions-grid" id="quickActions">
+               </div>
           </div>
-
           <div class="card">
             <div class="card-title mb-16">Console Status</div>
             <div id="consoleStatus"></div>
@@ -128,12 +131,92 @@
 </div>
 
 <script src="config.js"></script>
-<script src="dashboard.js"></script>
+
 <script>
-    // Initial call for static icons
+    // 1. The main security function (MUST be async to use await)
+    async function checkAuth() {
+        try {
+            // Initial check for user
+            let { data: { user }, error } = await supabase.auth.getUser();
+
+            // If no user found immediately, wait 500ms and try one last time
+            // This prevents the "Login Loop" caused by slow cookie saving
+            if (!user) {
+                console.log("Session pending, retrying...");
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const { data: retry } = await supabase.auth.getUser();
+                user = retry.user;
+            }
+
+            // If still no user, kick back to login
+            if (!user) {
+                console.warn("No active session. Redirecting...");
+                window.location.replace('index.html');
+                return;
+            }
+
+            // SUCCESS: User is logged in
+            console.log("Access Granted:", user.email);
+            
+            // Hide the loading overlay if you have one, or just proceed
+            const overlay = document.getElementById('auth-guard-overlay');
+            if (overlay) overlay.style.display = 'none';
+
+            loadAdminProfile(user);
+            
+            // Start your dashboard data loading (from dashboard.js)
+            if (typeof initDashboard === 'function') {
+                initDashboard();
+            }
+
+        } catch (err) {
+            console.error("Auth System Error:", err);
+            window.location.replace('index.html');
+        }
+    }
+
+    // 2. Profile Loader (Also async)
+    async function loadAdminProfile(user) {
+        try {
+            const { data: profile } = await supabase
+                .from('admin_profiles')
+                .select('first_name, last_name')
+                .eq('email', user.email)
+                .maybeSingle();
+
+            const pill = document.getElementById('profilePill');
+            const nameTxt = document.getElementById('adminNameDisplay');
+            const initTxt = document.getElementById('adminInitial');
+
+            if (pill) pill.style.display = 'flex';
+            
+            if (profile && profile.first_name) {
+                if (nameTxt) nameTxt.innerText = `${profile.first_name} ${profile.last_name || ''}`;
+                if (initTxt) initTxt.innerText = profile.first_name.charAt(0).toUpperCase();
+            } else {
+                if (nameTxt) nameTxt.innerText = user.email.split('@')[0];
+                if (initTxt) initTxt.innerText = user.email.charAt(0).toUpperCase();
+            }
+        } catch (e) {
+            console.error("Profile UI Error:", e);
+        }
+    }
+
+    // 3. Logout Handler
+    async function handleLogout() {
+        if (confirm("Sign out from GameCenter?")) {
+            await supabase.auth.signOut();
+            window.location.replace('index.html');
+        }
+    }
+
+    // 4. Execution Trigger
     document.addEventListener('DOMContentLoaded', () => {
-        lucide.createIcons();
+        checkAuth(); // This calls the async function correctly
+        if (window.lucide) lucide.createIcons();
     });
 </script>
+
+<script src="dashboard.js"></script>
 </body>
 </html>
