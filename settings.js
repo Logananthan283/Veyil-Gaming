@@ -1,15 +1,13 @@
 /**
- * SETTINGS.JS - Full Supabase Integration
- * Handles: Profile, Business Info, Password UI, Notifications, and Security Cloud Sync
+ * SETTINGS.JS - Final Clean Version
+ * Fixed: Single Toast Export
+ * Features: Profile Sync, Password Auth, Backup & Restore
  */
 
-// --- 1. UI Initialization & Navigation ---
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Initial Data Fetch
+    if (window.lucide) lucide.createIcons();
     loadSettings();
 
-    // Sidebar Toggle Logic
     const menuBtn = document.getElementById('menuBtn');
     if (menuBtn) {
         menuBtn.addEventListener('click', () => {
@@ -18,206 +16,337 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Tab/Panel Switching Logic
+/* ---------------- UI NAVIGATION ---------------- */
+
 function switchPanel(panel, btn) {
-    // Update Button States
     document.querySelectorAll('.sn-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    // Update Panel Visibility
     document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
     const target = document.getElementById('panel-' + panel);
     if (target) target.classList.add('active');
 }
 
-// --- 2. Data Loading (Fetch from Supabase) ---
+/* ---------------- LOAD SETTINGS ---------------- */
 
 async function loadSettings() {
     try {
-        // A. Load Business Settings
-        const { data: business, error: bErr } = await supabase
+        const { data: business } = await supabase
             .from('business_settings')
             .select('*')
             .eq('id', 1)
             .single();
 
         if (business) {
-            if (document.getElementById('centerName')) document.getElementById('centerName').value = business.center_name || '';
-            if (document.getElementById('currency')) document.getElementById('currency').value = business.currency || 'INR';
-            if (document.getElementById('taxRate')) document.getElementById('taxRate').value = business.tax_rate || 0;
-            if (document.getElementById('openTime')) document.getElementById('openTime').value = business.open_time || '09:00';
-            if (document.getElementById('closeTime')) document.getElementById('closeTime').value = business.close_time || '23:00';
-            if (document.getElementById('address')) document.getElementById('address').value = business.address || '';
+            centerName.value = business.center_name || '';
+            currency.value = business.currency || 'INR';
+            taxRate.value = business.tax_rate || 0;
+            openTime.value = business.open_time || '09:00';
+            closeTime.value = business.close_time || '23:00';
+            address.value = business.address || '';
         }
 
-        // B. Load Admin Profile
-        const { data: profile, error: pErr } = await supabase
+        const { data: profile } = await supabase
             .from('admin_profiles')
             .select('*')
             .eq('id', 1)
             .single();
 
         if (profile) {
-            if (document.getElementById('firstName')) document.getElementById('firstName').value = profile.first_name || '';
-            if (document.getElementById('lastName')) document.getElementById('lastName').value = profile.last_name || '';
-            if (document.getElementById('email')) document.getElementById('email').value = profile.email || '';
-            if (document.getElementById('phone')) document.getElementById('phone').value = profile.phone || '';
-
-            // Update UI Avatars & Sidebar Names
-            const fName = profile.first_name || 'Admin';
-            const lName = profile.last_name || 'User';
-            const initials = (fName[0] + (lName[0] || '')).toUpperCase();
+            firstName.value = profile.first_name || '';
+            lastName.value = profile.last_name || '';
+            email.value = profile.email || '';
+            phone.value = profile.phone || '';
 
             const bigAvatar = document.getElementById('bigAvatar');
-            if (bigAvatar) bigAvatar.innerText = initials;
 
-            const sideAvatar = document.getElementById('sideAvatar');
-            if (sideAvatar) sideAvatar.innerText = initials;
-
-            const sideName = document.getElementById('sideName');
-            if (sideName) sideName.innerText = `${fName} ${lName}`;
+            if (profile.avatar_url) {
+                bigAvatar.innerHTML = `
+                    <img src="${profile.avatar_url}" 
+                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                `;
+            } else {
+                const initials =
+                    ((profile.first_name?.[0] || 'A') +
+                        (profile.last_name?.[0] || 'U')).toUpperCase();
+                bigAvatar.innerText = initials;
+            }
         }
-
-        // C. Load System Config (Notifications & Security Toggles)
-        const { data: config, error: cErr } = await supabase
-            .from('system_config')
-            .select('*')
-            .eq('id', 1)
-            .single();
-
-        if (config) {
-            if (document.getElementById('notifEmail')) document.getElementById('notifEmail').checked = config.notif_email;
-            if (document.getElementById('notifSMS')) document.getElementById('notifSMS').checked = config.notif_sms;
-            if (document.getElementById('notifStock')) document.getElementById('notifStock').checked = config.notif_stock;
-            if (document.getElementById('sec2FA')) document.getElementById('sec2FA').checked = config.sec_2fa;
-            if (document.getElementById('secTimeout')) document.getElementById('secTimeout').checked = config.sec_timeout;
-        }
-
     } catch (err) {
-        console.error("Fetch Error:", err.message);
-        showToast("Error connecting to database", "error");
+        console.error(err);
+        showToast("Connection to cloud failed", "error");
     }
 }
 
-// --- 3. Data Saving (Update Supabase) ---
+/* ---------------- AVATAR UPLOAD ---------------- */
+
+async function uploadAvatar() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const fileExt = file.name.split('.').pop();
+        const fileName = `avatar-${Date.now()}.${fileExt}`;
+
+        try {
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(fileName, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(fileName);
+
+            await supabase
+                .from('admin_profiles')
+                .update({ avatar_url: data.publicUrl })
+                .eq('id', 1);
+
+            bigAvatar.innerHTML = `
+                <img src="${data.publicUrl}" 
+                style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+            `;
+
+            showToast("Profile picture updated!", "success");
+        } catch (err) {
+            showToast("Upload failed: " + err.message, "error");
+        }
+    };
+
+    input.click();
+}
+
+/* ---------------- SAVE SETTINGS ---------------- */
 
 async function saveSettings() {
     const btn = document.getElementById('saveBtn');
-    const originalText = btn.innerText;
-    
-    btn.innerText = 'Saving...';
+    const original = btn.innerHTML;
+
+    btn.innerText = "Syncing...";
     btn.disabled = true;
 
     try {
-        // Prepare Business Payload
-        const businessPayload = {
-            center_name: document.getElementById('centerName').value,
-            currency: document.getElementById('currency').value,
-            tax_rate: parseFloat(document.getElementById('taxRate').value) || 0,
-            open_time: document.getElementById('openTime').value,
-            close_time: document.getElementById('closeTime').value,
-            address: document.getElementById('address').value
-        };
-
-        // Prepare Profile Payload
         const profilePayload = {
-            first_name: document.getElementById('firstName').value,
-            last_name: document.getElementById('lastName').value,
-            email: document.getElementById('email').value,
-            phone: document.getElementById('phone').value
+            first_name: firstName.value,
+            last_name: lastName.value,
+            email: email.value,
+            phone: phone.value
         };
 
-        // Prepare System Config Payload (Toggles)
-        const configPayload = {
-            notif_email: document.getElementById('notifEmail').checked,
-            notif_sms: document.getElementById('notifSMS').checked,
-            notif_stock: document.getElementById('notifStock').checked,
-            sec_2fa: document.getElementById('sec2FA').checked,
-            sec_timeout: document.getElementById('secTimeout').checked
+        const businessPayload = {
+            center_name: centerName.value,
+            currency: currency.value,
+            tax_rate: parseFloat(taxRate.value) || 0,
+            open_time: openTime.value,
+            close_time: closeTime.value,
+            address: address.value
         };
 
-        // Execute all updates simultaneously
-        const [resB, resP, resC] = await Promise.all([
-            supabase.from('business_settings').update(businessPayload).eq('id', 1),
+        const [p, b] = await Promise.all([
             supabase.from('admin_profiles').update(profilePayload).eq('id', 1),
-            supabase.from('system_config').update(configPayload).eq('id', 1)
+            supabase.from('business_settings').update(businessPayload).eq('id', 1)
         ]);
-        
-        // Check for errors in results
-        if (resB.error || resP.error || resC.error) {
-            throw new Error("One or more sections failed to update.");
-        }
 
-        showToast('All settings synced to cloud!', 'success');
-        loadSettings(); // Refresh UI for avatars/sidebar
-        
+        if (p.error || b.error) throw new Error("Sync failed");
+
+        showToast("Cloud backup complete!", "success");
     } catch (err) {
-        console.error("Save Error:", err.message);
-        showToast(err.message, 'error');
+        showToast(err.message, "error");
     } finally {
-        btn.innerText = originalText;
+        btn.innerHTML = original;
         btn.disabled = false;
     }
 }
 
-// --- 4. Password Strength & Match Logic ---
+/* ---------------- PASSWORD UPDATE ---------------- */
 
-function checkPassword() {
-    const pass = document.getElementById('newPass').value;
-    const confirm = document.getElementById('confirmPass').value;
-    const container = document.getElementById('passStrength');
+async function updatePassword() {
+    const newPass = newPassInput.value;
+    const confirmPass = confirmPassInput.value;
 
-    if (!pass) { container.innerHTML = ''; return; }
+    if (!newPass || newPass !== confirmPass) {
+        return showToast("Passwords do not match", "error");
+    }
 
-    let strength = 0;
-    let label = 'Weak';
-    let color = '#ff4757';
+    const { error } = await supabase.auth.updateUser({
+        password: newPass
+    });
 
-    if (pass.length >= 8) strength++;
-    if (/[A-Z]/.test(pass)) strength++;
-    if (/[0-9]/.test(pass)) strength++;
-    if (/[^A-Za-z0-9]/.test(pass)) strength++;
-
-    if (strength >= 3) { label = 'Strong'; color = '#00ff88'; }
-    else if (strength === 2) { label = 'Medium'; color = '#ffa502'; }
-
-    const pct = Math.round((strength / 4) * 100);
-    const isMatch = pass === confirm;
-    const matchMsg = confirm ? (isMatch ? 
-        '<span style="color:#00ff88;font-size:11px;">✓ Match</span>' : 
-        '<span style="color:#ff4757;font-size:11px;">✗ Mismatch</span>') : '';
-
-    container.innerHTML = `
-        <div class="pass-strength-bar" style="background: rgba(255,255,255,0.1); height: 4px; border-radius: 2px; margin: 8px 0;">
-            <div class="pass-strength-fill" style="width:${pct}%; background:${color}; height:100%; border-radius:2px; transition: all 0.3s;"></div>
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:11px; color:${color}; font-weight:600;">Strength: ${label}</span>
-            ${matchMsg}
-        </div>`;
+    if (error) {
+        showToast(error.message, "error");
+    } else {
+        showToast("Password updated successfully", "success");
+        newPassInput.value = '';
+        confirmPassInput.value = '';
+        passStrength.innerHTML = '';
+    }
 }
 
-// --- 5. Notification Toast UI ---
+/* ---------------- FULL DATA EXPORT (FIXED SINGLE TOAST) ---------------- */
+
+async function exportFullData() {
+    const tables = [
+        'admin_profiles', 'business_settings', 'consoles', 'bookings',
+        'expenses', 'inventory', 'master_hours', 'master_players',
+        'menu_items', 'pricing_rates', 'system_config'
+    ];
+
+    let backupData = {
+        export_date: new Date().toISOString(),
+        site: "GameCenter Admin",
+        data: {}
+    };
+
+    try {
+        for (const table of tables) {
+            const { data, error } = await supabase
+                .from(table)
+                .select('*')
+                .range(0, 9999);
+
+            if (error) throw error;
+            backupData.data[table] = data;
+        }
+
+        const blob = new Blob(
+            [JSON.stringify(backupData, null, 2)],
+            { type: 'application/json' }
+        );
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download =
+            `GameCenter_Full_Backup_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        // ✅ ONLY ONE TOAST
+        showToast("Full system backup downloaded successfully!", "success");
+
+    } catch (err) {
+        showToast("Export failed: " + err.message, "error");
+    }
+}
+
+/* ---------------- RESTORE ---------------- */
+
+function openRestoreModal() {
+    document.getElementById('importFile').click();
+}
+
+async function importFullData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+        try {
+            const backup = JSON.parse(e.target.result);
+
+            if (!backup.data || backup.site !== "GameCenter Admin") {
+                throw new Error("Invalid backup format.");
+            }
+
+            const deleteOrder = [
+                'bookings', 'expenses', 'inventory', 'menu_items',
+                'pricing_rates', 'consoles', 'admin_profiles',
+                'business_settings', 'master_hours',
+                'master_players', 'system_config'
+            ];
+
+            const insertOrder = [...deleteOrder].reverse();
+
+            for (const table of deleteOrder) {
+                await supabase.from(table).delete().neq('id', 0);
+            }
+
+            for (const table of insertOrder) {
+                const data = backup.data[table];
+                if (!data || data.length === 0) continue;
+
+                const { error } = await supabase.from(table).insert(data);
+                if (error) throw error;
+            }
+
+            showToast("System fully restored!", "success");
+            setTimeout(() => location.reload(), 1500);
+
+        } catch (err) {
+            showToast("Restore failed: " + err.message, "error");
+        }
+    };
+
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+/* ---------------- PASSWORD CHECK ---------------- */
+
+function checkPassword() {
+    const pass = newPassInput.value;
+    const confirm = confirmPassInput.value;
+
+    if (!pass) {
+        passStrength.innerHTML = '';
+        return;
+    }
+
+    const match = pass === confirm;
+
+    passStrength.innerHTML = confirm
+        ? `<div style="margin-top:10px;text-align:right;">
+            <span style="color:${match ? '#00ff88' : '#ff4757'};
+            font-size:12px;font-weight:600;">
+            ${match ? '✓ Passwords Match' : '✗ Mismatch'}
+            </span>
+           </div>`
+        : '';
+}
+
+/* ---------------- TOAST SYSTEM ---------------- */
 
 function showToast(msg, type = 'success') {
-    const icons = { success: '✓', error: '✗', warning: '⚠', info: 'ℹ' };
     const container = document.getElementById('toastContainer');
     if (!container) return;
 
     const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.style.display = 'flex';
-    toast.style.alignItems = 'center';
-    toast.style.gap = '10px';
-    
+
+    const colors = {
+        success: '#00ff88',
+        error: '#ff4757',
+        info: '#3b82f6'
+    };
+
     toast.innerHTML = `
-        <span class="toast-icon" style="font-weight:bold;">${icons[type]}</span>
-        <span class="toast-msg">${msg}</span>
+        <div style="
+            display:flex;
+            align-items:center;
+            gap:12px;
+            background:#1a1a1a;
+            color:white;
+            padding:12px 20px;
+            border-radius:8px;
+            border-left:4px solid ${colors[type]};
+            box-shadow:0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom:10px;
+            animation: slideIn 0.3s ease forwards;
+        ">
+            <span style="font-size:13px;font-weight:500;">
+                ${msg}
+            </span>
+        </div>
     `;
 
     container.appendChild(toast);
 
-    // Animate out and remove
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(20px)';

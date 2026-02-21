@@ -402,3 +402,84 @@ window.addEventListener('load', () => {
     fetchBookings();
     setInterval(autoCheckStatus, 30000);
 });
+async function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4'); // Landscape for better table fit
+
+    // Header Branding
+    doc.setFillColor(30, 41, 59);
+    doc.rect(0, 0, 297, 30, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.text("GAMECENTER - BOOKING REPORT", 15, 15);
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 15, 22);
+
+    const tableData = filteredBookings.map((b, i) => [
+        i + 1,
+        b.playerName,
+        b.console,
+        b.date,
+        b.displayStartTime,
+        b.displayEndTime,
+        b.hours + 'h',
+        `Rs. ${b.finalamount}`,
+        b.paymentmode,
+        b.status.toUpperCase()
+    ]);
+
+    doc.autoTable({
+        startY: 35,
+        head: [['#', 'Customer', 'Console', 'Date', 'Start', 'End', 'Dur.', 'Amount', 'Mode', 'Status']],
+        body: tableData,
+        theme: 'striped',
+        headStyles: { fillColor: [79, 70, 229], textColor: 255 },
+        styles: { fontSize: 8, cellPadding: 3 },
+        columnStyles: {
+            7: { fontStyle: 'bold' }, // Amount column
+            9: { fontStyle: 'bold' }  // Status column
+        },
+        didParseCell: function(data) {
+            if (data.section === 'body' && data.column.index === 9) {
+                const val = data.cell.raw;
+                if (val === 'ACTIVE') data.cell.styles.textColor = [16, 185, 129];
+            }
+        }
+    });
+
+    doc.save(`Bookings_Report_${new Date().toISOString().slice(0,10)}.pdf`);
+    showToast("PDF Exported Successfully");
+}
+function exportToExcel() {
+    // Prepare data specifically for Excel
+    const excelData = filteredBookings.map((b, i) => ({
+        "S.No": i + 1,
+        "Customer Name": b.playerName,
+        "Mobile": b.mobile || 'N/A',
+        "Console": b.console,
+        "Players": b.players,
+        "Date": b.date,
+        "Start Time": b.displayStartTime,
+        "End Time": b.displayEndTime,
+        "Duration (Hrs)": b.hours,
+        "Amount (INR)": b.finalamount,
+        "Payment Mode": b.paymentmode,
+        "Status": b.status
+    }));
+
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Bookings");
+
+    // Adjust column widths automatically
+    const wscols = [
+        {wch: 5}, {wch: 20}, {wch: 15}, {wch: 15}, {wch: 8}, 
+        {wch: 12}, {wch: 12}, {wch: 12}, {wch: 10}, {wch: 12}, {wch: 12}, {wch: 12}
+    ];
+    worksheet['!cols'] = wscols;
+
+    // Download file
+    XLSX.writeFile(workbook, `GameCenter_Bookings_${new Date().toISOString().slice(0,10)}.xlsx`);
+    showToast("Excel Exported Successfully");
+}

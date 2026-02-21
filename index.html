@@ -1,116 +1,230 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GameCenter Admin — Secure Login</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #0f172a;
-      color: #fff;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      -webkit-font-smoothing: antialiased;
-    }
-    .landing { text-align: center; max-width: 400px; width: 100%; padding: 40px 24px; }
-    .logo-wrap { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 24px; }
-    .logo-icon { width: 48px; height: 48px; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.25); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #00ff88; }
-    .logo-text { font-size: 24px; font-weight: 700; }
-    .login-box { background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155; margin-top: 20px; display: none; }
-    .input-group { text-align: left; margin-bottom: 15px; }
-    label { display: block; font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 5px; text-transform: uppercase; }
-    input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white; font-size: 14px; }
-    input:focus { border-color: #00ff88; outline: none; }
-    .enter-btn { width: 100%; padding: 14px; background: #00ff88; color: #000; font-size: 14px; font-weight: 700; border-radius: 8px; cursor: pointer; border: none; margin-top: 10px; transition: 0.2s; }
-    .enter-btn:hover { background: #00e87c; }
-    .enter-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .status-msg { font-size: 13px; color: #94a3b8; margin-top: 20px; }
-    #error-msg { color: #f87171; font-size: 12px; margin-top: 10px; display: none; border: 1px solid rgba(248,113,113,0.2); padding: 8px; border-radius: 4px; background: rgba(248,113,113,0.05); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Connect — Secure Admin</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="1.jpg">
+    <style>
+        :root {
+            --bg-dark: #060818;
+            --card-bg: #090b13;
+            --input-bg: #13151f;
+            --border-color: #2a2d3a;
+            --accent-blue: #00ff88; /* Switched to a more 'AI' green from your first UI */
+            --text-gray: #9ca3af;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-dark), #0d1023);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .card {
+            display: flex;
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease-out;
+        }
+
+        .card.visible { opacity: 1; transform: translateY(0); }
+
+        /* Left Side: Animation */
+        .left-panel {
+            width: 50%;
+            position: relative;
+            background: #0f1120;
+            border-right: 1px solid #1f2130;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 500px;
+        }
+
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+
+        .overlay-content { position: relative; z-index: 2; text-align: center; padding: 20px; }
+
+        .logo {
+            width: 60px; height: 60px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: var(--accent-blue);
+            font-size: 24px;
+        }
+
+        /* Right Side: Form */
+        .right-panel {
+            width: 50%;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 { font-size: 28px; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .subtitle { color: var(--text-gray); margin-bottom: 30px; font-size: 14px; }
+
+        .field { margin-bottom: 20px; }
+        label { display: block; font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; }
+        label span { color: var(--accent-blue); }
+
+        .input-box { position: relative; }
+        input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 15px;
+            color: white;
+            outline: none;
+            transition: 0.2s;
+        }
+        input:focus { border-color: var(--accent-blue); }
+
+        .eye-btn {
+            position: absolute;
+            right: 12px; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none; color: #666; cursor: pointer;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-blue);
+            border: none; border-radius: 8px;
+            color: #000; font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        #error-msg {
+            color: #f87171;
+            font-size: 12px;
+            margin-top: 15px;
+            display: none;
+            border: 1px solid rgba(248,113,113,0.2);
+            padding: 10px;
+            border-radius: 6px;
+            background: rgba(248,113,113,0.05);
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .left-panel { display: none; }
+            .right-panel { width: 100%; padding: 40px; }
+        }
+    </style>
 </head>
 <body>
-  <div class="landing">
-    <div class="logo-wrap">
-      <div class="logo-icon">⬡</div>
-      <div class="logo-text">GameCenter Admin</div>
+
+<div class="card" id="card">
+    <div class="left-panel">
+        <canvas id="mapCanvas"></canvas>
+        <div class="overlay-content">
+            <div class="logo">⬡</div>
+            <h2>Travel Connect</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin-top: 10px;">Cloud Infrastructure Admin</p>
+        </div>
     </div>
 
-    <div id="login-section" class="login-box">
-      <div class="input-group">
-        <label>Admin Email</label>
-        <input type="email" id="email" placeholder="admin@gamecenter.com">
-      </div>
-      <div class="input-group">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="••••••••">
-      </div>
-      <button class="enter-btn" id="loginBtn">Secure Sign In</button>
-      <div id="error-msg">Invalid credentials</div>
+    <div class="right-panel">
+        <h1 id="header-title">Secure Login</h1>
+        <p class="subtitle" id="status-text">Enter credentials to access dashboard</p>
+        
+        <form id="loginForm">
+            <div class="field">
+                <label>Email Address <span>*</span></label>
+                <input type="email" id="email" placeholder="admin@travelconnect.com" required>
+            </div>
+            <div class="field">
+                <label>Password <span>*</span></label>
+                <div class="input-box">
+                    <input type="password" id="pass" placeholder="••••••••" required>
+                    <button type="button" class="eye-btn" onclick="togglePass()">
+                        <i data-lucide="eye" id="eye-icon" style="width: 18px"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn" id="loginBtn">
+                Sign In <i data-lucide="shield-check" style="width: 18px"></i>
+            </button>
+            <div id="error-msg"></div>
+        </form>
     </div>
+</div>
 
-    <div id="loading-section">
-      <div class="status-msg" id="status-text">Initialising security...</div>
-    </div>
-  </div>
+<script src="config.js"></script> 
 
-  <script src="config.js"></script> 
-  
-  <script>
-    const statusText = document.getElementById('status-text');
-    const loginSection = document.getElementById('login-section');
-    const loadingSection = document.getElementById('loading-section');
-    const errorMsg = document.getElementById('error-msg');
+<script>
+    // --- UI Logic ---
+    lucide.createIcons();
+    setTimeout(() => document.getElementById('card').classList.add('visible'), 100);
+
+    function togglePass() {
+        const p = document.getElementById('pass');
+        const icon = document.getElementById('eye-icon');
+        const isPass = p.type === 'password';
+        p.type = isPass ? 'text' : 'password';
+        icon.setAttribute('data-lucide', isPass ? 'eye-off' : 'eye');
+        lucide.createIcons();
+    }
+
+    // --- Backend Integration (Supabase) ---
+    const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
+    const errorMsg = document.getElementById('error-msg');
+    const statusText = document.getElementById('status-text');
 
-    // 1. CLEAN REDIRECT FUNCTION
     const navigateToDashboard = () => {
         statusText.innerText = "Access Granted. Redirecting...";
-        loadingSection.style.display = 'block';
-        loginSection.style.display = 'none';
+        statusText.style.color = "#00ff88";
         window.location.replace('dashboard.html');
     };
 
-    // 2. AUTH STATE LISTENER (The primary way to handle login)
+    // Listen for Auth Changes
     supabase.auth.onAuthStateChange((event, session) => {
-        console.log("System Event:", event);
         if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
             navigateToDashboard();
         }
     });
 
-    // 3. INITIAL CHECK ON LOAD
-    async function initCheck() {
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                navigateToDashboard();
-            } else {
-                loadingSection.style.display = 'none';
-                loginSection.style.display = 'block';
-            }
-        } catch (err) {
-            loadingSection.style.display = 'none';
-            loginSection.style.display = 'block';
-        }
-    }
-
-    // 4. LOGIN CLICK HANDLER
-    loginBtn.addEventListener('click', async () => {
+    // Handle Login Submit
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
         const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-
-        if (!email || !password) {
-            showError("Please enter your credentials.");
-            return;
-        }
+        const password = document.getElementById('pass').value;
 
         loginBtn.innerText = "Authenticating...";
         loginBtn.disabled = true;
@@ -122,27 +236,76 @@
         });
 
         if (error) {
-            showError(error.message);
-            loginBtn.innerText = "Secure Sign In";
+            errorMsg.innerText = error.message;
+            errorMsg.style.display = 'block';
+            loginBtn.innerHTML = `Sign In <i data-lucide="shield-check" style="width: 18px"></i>`;
             loginBtn.disabled = false;
-        } 
-        // We don't need a redirect here because onAuthStateChange (above) 
-        // will detect data.session and trigger navigateToDashboard()
-    });
-
-    function showError(msg) {
-        errorMsg.innerText = msg;
-        errorMsg.style.display = 'block';
-    }
-
-    // Handle Enter Key
-    document.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && loginSection.style.display !== 'none') {
-            loginBtn.click();
+            lucide.createIcons();
         }
     });
 
-    initCheck();
-  </script>
+    // --- Background Animation ---
+    const canvas = document.getElementById('mapCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, dots = [];
+    let startTime = Date.now();
+
+    const routes = [
+        { sx: 0.2, sy: 0.3, ex: 0.5, ey: 0.2, delay: 0 },
+        { sx: 0.5, sy: 0.2, ex: 0.7, ey: 0.5, delay: 2 },
+        { sx: 0.1, sy: 0.6, ex: 0.4, ey: 0.4, delay: 1 },
+        { sx: 0.8, sy: 0.2, ex: 0.6, ey: 0.6, delay: 3 }
+    ];
+
+    function initCanvas() {
+        width = canvas.parentElement.offsetWidth;
+        height = canvas.parentElement.offsetHeight;
+        canvas.width = width;
+        canvas.height = height;
+        dots = [];
+        for (let x = 0; x < width; x += 15) {
+            for (let y = 0; y < height; y += 15) {
+                if (Math.random() > 0.7) {
+                    dots.push({ x, y, op: Math.random() * 0.3 + 0.1 });
+                }
+            }
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+        const time = (Date.now() - startTime) / 1000;
+        dots.forEach(d => {
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, 1, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(0, 255, 136, ${d.op})`;
+            ctx.fill();
+        });
+        routes.forEach(r => {
+            const elapsed = time - r.delay;
+            if (elapsed < 0) return;
+            const progress = Math.min(elapsed / 2.5, 1);
+            const curX = (r.sx + (r.ex - r.sx) * progress) * width;
+            const curY = (r.sy + (r.ey - r.sy) * progress) * height;
+            ctx.beginPath();
+            ctx.moveTo(r.sx * width, r.sy * height);
+            ctx.lineTo(curX, curY);
+            ctx.strokeStyle = 'rgba(0, 255, 136, 0.2)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(curX, curY, 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#00ff88';
+            ctx.fill();
+        });
+        if (time > 8) startTime = Date.now();
+        requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', initCanvas);
+    initCanvas();
+    draw();
+</script>
+
 </body>
 </html>

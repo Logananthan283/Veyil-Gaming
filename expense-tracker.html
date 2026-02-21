@@ -7,31 +7,69 @@
   <link rel="stylesheet" href="global.css">
   <link rel="stylesheet" href="expense-tracker.css">
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="auth-shield.js"></script>
+  <script src="shared-ui.js"></script>
+  <link rel="icon" type="image/png" href="1.jpg">
 </head>
 <body>
 <div class="app-wrapper">
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="logo">
-        <div class="logo-icon"><i data-lucide="hexagon"></i></div>
-        <div><span class="logo-text">GameCenter</span></div>
+ <aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon"><i data-lucide="hexagon"></i></div>
+      <div>
+        <span class="logo-text">GameCenter</span>
+        <div class="logo-subtitle" style="font-size: 0.75rem; opacity: 0.7;">Admin Panel</div>
       </div>
     </div>
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Main</div>
-      <a href="dashboard.html" class="nav-link"><i data-lucide="layout-dashboard" class="nav-icon"></i>Dashboard</a>
-      <a href="live-console.html" class="nav-link"><i data-lucide="monitor" class="nav-icon"></i>Live Console</a>
-      <div class="nav-section-label">Bookings</div>
-      <a href="add-booking.html" class="nav-link"><i data-lucide="plus-circle" class="nav-icon"></i>New Booking</a>
-      <a href="booking-list.html" class="nav-link"><i data-lucide="list" class="nav-icon"></i>Booking List</a>
-      <div class="nav-section-label">Finance</div>
-      <a href="inventory.html" class="nav-link"><i data-lucide="package" class="nav-icon"></i>Inventory</a>
-      <a href="expense-tracker.html" class="nav-link active"><i data-lucide="indian-rupee" class="nav-icon"></i>Expense Tracker</a>
-      <a href="reports.html" class="nav-link"><i data-lucide="bar-chart-3" class="nav-icon"></i>Reports</a>
-      <div class="nav-section-label">System</div>
-      <a href="master.html" class="nav-link"><i data-lucide="database" class="nav-icon"></i>Master</a>
-      <a href="settings.html" class="nav-link"><i data-lucide="settings" class="nav-icon"></i>Settings</a>
-    </nav>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="dashboard.html" class="nav-link">
+      <i data-lucide="layout-dashboard" class="nav-icon"></i>Dashboard
+    </a>
+    <a href="live-console.html" class="nav-link">
+      <i data-lucide="monitor" class="nav-icon"></i>Live Console
+    </a>
+
+    <div class="nav-section-label">Bookings</div>
+    <a href="add-booking.html" class="nav-link">
+      <i data-lucide="plus-circle" class="nav-icon"></i>New Booking
+    </a>
+    <a href="booking-list.html" class="nav-link">
+      <i data-lucide="list" class="nav-icon"></i>Booking List
+    </a>
+
+    <div class="nav-section-label">Finance</div>
+    <a href="inventory.html" class="nav-link">
+      <i data-lucide="package" class="nav-icon"></i>Inventory
+    </a>
+    <a href="expense-tracker.html" class="nav-link active">
+      <i data-lucide="indian-rupee" class="nav-icon"></i>Expense Tracker
+    </a>
+    <a href="reports.html" class="nav-link">
+      <i data-lucide="bar-chart-3" class="nav-icon"></i>Reports
+    </a>
+
+    <div class="nav-section-label">System</div>
+    <a href="master.html" class="nav-link">
+      <i data-lucide="database" class="nav-icon"></i>Master
+    </a>
+    <a href="settings.html" class="nav-link">
+      <i data-lucide="settings" class="nav-icon"></i>Settings
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar">AU</div>
+      <div class="user-info">
+        <div class="user-name">Admin User</div>
+        <div class="user-role">Super Admin</div>
+      </div>
+    </div>
+  </div>
   </aside>
 
   <div class="main-content">

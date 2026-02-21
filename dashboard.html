@@ -9,6 +9,8 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="shared-ui.js"></script>
+  <link rel="icon" type="image/png" href="1.jpg">
   <style>
     /* Prevents white flash or broken data showing before auth is confirmed */
     #auth-guard-overlay {
@@ -22,53 +24,138 @@
       color: #00ff88;
       font-family: sans-serif;
     }
+
+    /* --- CUSTOM LOGOUT MODAL STYLES --- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex; /* Always flex but controlled by opacity/pointer-events */
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none; /* This makes the overlay "invisible" to clicks */
+      transition: opacity 0.2s ease;
+    }
+    
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto; /* Re-enables clicks when visible */
+    }
+
+    .modal-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px;
+      width: 90%;
+      max-width: 340px;
+      text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      transform: translateY(20px);
+      transition: transform 0.2s ease;
+    }
+    
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(248, 113, 113, 0.1);
+      color: #f87171;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .modal-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .modal-text { font-size: 14px; color: #94a3b8; margin-bottom: 24px; }
+    .modal-actions { display: flex; gap: 12px; }
+    .modal-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      transition: 0.2s;
+    }
+    .btn-cancel { background: #334155; color: #fff; }
+    .btn-cancel:hover { background: #475569; }
+    .btn-confirm { background: #f87171; color: #fff; }
+    .btn-confirm:hover { background: #ef4444; }
   </style>
 </head>
 <body>
 
 <div id="auth-guard-overlay">Checking Access...</div>
 
+<div id="logoutModal" class="modal-overlay">
+  <div class="modal-card">
+    <div class="modal-icon"><i data-lucide="log-out"></i></div>
+    <div class="modal-title">Confirm Logout</div>
+    <div class="modal-text">Are you sure you want to end your current session?</div>
+    <div class="modal-actions">
+      <button class="modal-btn btn-cancel" onclick="closeLogoutModal()">Cancel</button>
+      <button class="modal-btn btn-confirm" id="confirmLogoutBtn">Log Out</button>
+    </div>
+  </div>
+</div>
+
 <div class="app-wrapper">
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="logo">
-        <div class="logo-icon"><i data-lucide="hexagon"></i></div>
-        <div><span class="logo-text">GameCenter</span></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon"><i data-lucide="hexagon"></i></div>
+      <div>
+        <span class="logo-text">GameCenter</span>
+        <div class="logo-subtitle" style="font-size: 0.75rem; opacity: 0.7;">Admin Panel</div>
       </div>
     </div>
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Main</div>
-      <a href="dashboard.html" class="nav-link active">
-        <i data-lucide="layout-dashboard" class="nav-icon"></i>Dashboard
-      </a>
-      <a href="live-console.html" class="nav-link">
-        <i data-lucide="monitor" class="nav-icon"></i>Live Console
-      </a>
-      <div class="nav-section-label">Bookings</div>
-      <a href="add-booking.html" class="nav-link">
-        <i data-lucide="plus-circle" class="nav-icon"></i>New Booking
-      </a>
-      <a href="booking-list.html" class="nav-link">
-        <i data-lucide="list" class="nav-icon"></i>Booking List
-      </a>
-      <div class="nav-section-label">Finance</div>
-      <a href="inventory.html" class="nav-link">
-        <i data-lucide="package" class="nav-icon"></i>Inventory
-      </a>
-      <a href="expense-tracker.html" class="nav-link">
-        <i data-lucide="indian-rupee" class="nav-icon"></i>Expense Tracker
-      </a>
-      <a href="reports.html" class="nav-link">
-        <i data-lucide="bar-chart-3" class="nav-icon"></i>Reports
-      </a>
-      <div class="nav-section-label">System</div>
-      <a href="master.html" class="nav-link">
-        <i data-lucide="database" class="nav-icon"></i>Master
-      </a>
-      <a href="settings.html" class="nav-link">
-        <i data-lucide="settings" class="nav-icon"></i>Settings
-      </a>
-    </nav>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="dashboard.html" class="nav-link active">
+      <i data-lucide="layout-dashboard" class="nav-icon"></i>Dashboard
+    </a>
+    <a href="live-console.html" class="nav-link">
+      <i data-lucide="monitor" class="nav-icon"></i>Live Console
+    </a>
+
+    <div class="nav-section-label">Bookings</div>
+    <a href="add-booking.html" class="nav-link">
+      <i data-lucide="plus-circle" class="nav-icon"></i>New Booking
+    </a>
+    <a href="booking-list.html" class="nav-link">
+      <i data-lucide="list" class="nav-icon"></i>Booking List
+    </a>
+
+    <div class="nav-section-label">Finance</div>
+    <a href="inventory.html" class="nav-link">
+      <i data-lucide="package" class="nav-icon"></i>Inventory
+    </a>
+    <a href="expense-tracker.html" class="nav-link">
+      <i data-lucide="indian-rupee" class="nav-icon"></i>Expense Tracker
+    </a>
+    <a href="reports.html" class="nav-link">
+      <i data-lucide="bar-chart-3" class="nav-icon"></i>Reports
+    </a>
+
+    <div class="nav-section-label">System</div>
+    <a href="master.html" class="nav-link">
+      <i data-lucide="database" class="nav-icon"></i>Master
+    </a>
+    <a href="settings.html" class="nav-link">
+      <i data-lucide="settings" class="nav-icon"></i>Settings
+    </a>
+  </nav>
   </aside>
 
   <div class="main-content">
@@ -79,16 +166,16 @@
       </div>
       <div class="topbar-right" style="display: flex; align-items: center; gap: 15px;">
         
-        <div id="profilePill" style="display: none; align-items: center; gap: 10px; background: #1e293b; padding: 5px 12px; border-radius: 50px; border: 1px solid #334155;">
-          <div id="adminInitial" style="width: 26px; height: 26px; background: #00ff88; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px;">?</div>
-          <span id="adminNameDisplay" style="font-size: 13px; font-weight: 500; color: #f1f5f9;">Admin</span>
-        </div>
+<div id="profilePill" style="display: none; align-items: center; gap: 10px; background: #1e293b; padding: 5px 12px; border-radius: 50px; border: 1px solid #334155; min-width: 120px; min-height: 38px;">
+    <div id="adminInitial" style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px; overflow: hidden; flex-shrink: 0;"></div>
+    <span id="adminNameDisplay" style="font-size: 13px; font-weight: 500; color: #f1f5f9; white-space: nowrap;"></span>
+</div>
 
         <button class="btn btn-secondary btn-sm" onclick="location.reload()">
           <i data-lucide="refresh-cw" style="width:14px; margin-right:6px;"></i> Refresh
         </button>
 
-        <button class="btn btn-ghost btn-sm" onclick="handleLogout()" style="color: #f87171; padding: 8px;" title="Logout">
+        <button class="btn btn-ghost btn-sm" onclick="showLogoutModal()" style="color: #f87171; padding: 8px; cursor: pointer; position: relative; z-index: 10;" title="Logout">
           <i data-lucide="log-out" style="width:18px;"></i>
         </button>
       </div>
@@ -118,7 +205,7 @@
           <div class="card">
             <div class="card-title mb-16">Quick Actions</div>
             <div class="quick-actions-grid" id="quickActions">
-               </div>
+                </div>
           </div>
           <div class="card">
             <div class="card-title mb-16">Console Status</div>
@@ -131,105 +218,72 @@
 </div>
 
 <script src="config.js"></script>
-
 <script>
-    // 1. The main security function (MUST be async to use await)
-    async function checkAuth() {
-        try {
-            // Initial check for user
-            let { data: { user }, error } = await supabase.auth.getUser();
+// --- AUTH LOGIC ---
+async function checkAuth() {
+    try {
+        let { data: { user }, error } = await supabase.auth.getUser();
 
-            // If no user found immediately, wait 500ms and try one last time
-            // This prevents the "Login Loop" caused by slow cookie saving
-            if (!user) {
-                console.log("Session pending, retrying...");
-                await new Promise(resolve => setTimeout(resolve, 500));
-                const { data: retry } = await supabase.auth.getUser();
-                user = retry.user;
-            }
-
-            // If still no user, kick back to login
-            if (!user) {
-                console.warn("No active session. Redirecting...");
-                window.location.replace('index.html');
-                return;
-            }
-
-            // SUCCESS: User is logged in
-            console.log("Access Granted:", user.email);
-            
-            // Hide the loading overlay if you have one, or just proceed
-            const overlay = document.getElementById('auth-guard-overlay');
-            if (overlay) overlay.style.display = 'none';
-
-            loadAdminProfile(user);
-            
-            // Start your dashboard data loading (from dashboard.js)
-            if (typeof initDashboard === 'function') {
-                initDashboard();
-            }
-
-        } catch (err) {
-            console.error("Auth System Error:", err);
-            window.location.replace('index.html');
+        // Retry once if session is slow
+        if (!user) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const { data: retry } = await supabase.auth.getUser();
+            user = retry.user;
         }
-    }
 
-    // 2. Profile Loader (Also async)
-    async function loadAdminProfile(user) {
-        try {
-            const { data: profile } = await supabase
-                .from('admin_profiles')
-                .select('first_name, last_name')
-                .eq('email', user.email)
-                .maybeSingle();
-
-            const pill = document.getElementById('profilePill');
-            const nameTxt = document.getElementById('adminNameDisplay');
-            const initTxt = document.getElementById('adminInitial');
-
-            if (pill) pill.style.display = 'flex';
-            
-            if (profile && profile.first_name) {
-                if (nameTxt) nameTxt.innerText = `${profile.first_name} ${profile.last_name || ''}`;
-                if (initTxt) initTxt.innerText = profile.first_name.charAt(0).toUpperCase();
-            } else {
-                if (nameTxt) nameTxt.innerText = user.email.split('@')[0];
-                if (initTxt) initTxt.innerText = user.email.charAt(0).toUpperCase();
-            }
-        } catch (e) {
-            console.error("Profile UI Error:", e);
-        }
-    }
-
-    // 3. Logout Handler
-   async function handleLogout() {
-    if (confirm("Are you sure you want to log out?")) {
-        try {
-            // 1. Tell Supabase to sign out
-            await supabase.auth.signOut();
-
-            // 2. Clear local storage manually (Safety Net)
-            localStorage.clear(); 
-            sessionStorage.clear();
-
-            // 3. Force redirect to login page
+        // Redirect if not logged in
+        if (!user) {
             window.location.replace('index.html');
-        } catch (error) {
-            console.error("Logout failed:", error);
-            // Fallback: even if the API call fails, force the user to the login page
-            window.location.replace('index.html');
+            return;
         }
+
+        // Hide loading overlay
+        const overlay = document.getElementById('auth-guard-overlay');
+        if (overlay) overlay.style.display = 'none';
+
+        // Initialize Dashboard Data
+        if (typeof initDashboard === 'function') {
+            initDashboard();
+        }
+
+    } catch (err) {
+        console.error("Auth Error:", err);
+        window.location.replace('index.html');
     }
 }
 
-    // 4. Execution Trigger
-    document.addEventListener('DOMContentLoaded', () => {
-        checkAuth(); // This calls the async function correctly
-        if (window.lucide) lucide.createIcons();
-    });
-</script>
+// --- LOGOUT MODAL LOGIC ---
+const logoutModal = document.getElementById('logoutModal');
+const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
 
+function showLogoutModal() {
+    logoutModal.classList.add('active');
+}
+
+function closeLogoutModal() {
+    logoutModal.classList.remove('active');
+}
+
+confirmLogoutBtn.addEventListener('click', async () => {
+    confirmLogoutBtn.innerText = "Signing out...";
+    confirmLogoutBtn.disabled = true;
+    
+    try {
+        await supabase.auth.signOut();
+        localStorage.clear(); 
+        sessionStorage.clear();
+        window.location.replace('index.html');
+    } catch (error) {
+        window.location.replace('index.html');
+    }
+});
+
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+    if (window.lucide) lucide.createIcons();
+});
+</script>
 <script src="dashboard.js"></script>
 </body>
 </html>

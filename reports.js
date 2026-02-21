@@ -230,3 +230,105 @@ function showToast(msg, type = 'success') {
 
 window.addEventListener('load', fetchReportData);
 window.addEventListener('resize', () => { drawRevExpChart(); drawConsoleRevChart(); });
+async function generateProfessionalPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    const contentWidth = pageWidth - (margin * 2);
+
+    // --- COLOR PALETTE ---
+    const colors = {
+        primary: [30, 41, 59],   // Slate 800
+        accent: [79, 70, 229],    // Indigo 600
+        success: [16, 185, 129],  // Emerald 500
+        danger: [239, 68, 68],    // Red 500
+        text: [71, 85, 105],      // Slate 600
+        lightBg: [248, 250, 252]  // Slate 50
+    };
+
+    // 1. HEADER SECTION
+    doc.setFillColor(...colors.primary);
+    doc.rect(0, 0, pageWidth, 45, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.text("GameCenter", margin, 22);
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("BUSINESS PERFORMANCE REPORT", margin, 30);
+    doc.text(`Period: Last 10 Days | Generated: ${new Date().toLocaleString()}`, margin, 36);
+
+    // 2. KPI BOXES (Structured Spacing)
+    const kpiData = [
+        { label: "TOTAL REVENUE", value: document.querySelectorAll('.report-kpi-value')[0].innerText, color: colors.success },
+        { label: "TOTAL EXPENSES", value: document.querySelectorAll('.report-kpi-value')[1].innerText, color: colors.danger },
+        { label: "NET PROFIT", value: document.querySelectorAll('.report-kpi-value')[2].innerText, color: colors.accent }
+    ];
+
+    let xPos = margin;
+    const boxWidth = (contentWidth - 10) / 3;
+
+    kpiData.forEach(kpi => {
+        doc.setFillColor(...colors.lightBg);
+        doc.roundedRect(xPos, 55, boxWidth, 25, 2, 2, 'F');
+        
+        doc.setFontSize(8);
+        doc.setTextColor(...colors.text);
+        doc.setFont("helvetica", "bold");
+        doc.text(kpi.label, xPos + (boxWidth/2), 63, { align: "center" });
+        
+        doc.setFontSize(14);
+        doc.setTextColor(...kpi.color);
+        doc.text(kpi.value, xPos + (boxWidth/2), 73, { align: "center" });
+        xPos += boxWidth + 5;
+    });
+
+    // 3. MAIN TREND CHART (Large & Clear)
+    doc.setDrawColor(226, 232, 240);
+    doc.line(margin, 95, pageWidth - margin, 95); // Divider
+
+    doc.setTextColor(...colors.primary);
+    doc.setFontSize(12);
+    doc.text("Financial Revenue Trend", margin, 105);
+
+    const chartCanvas = await html2canvas(document.getElementById('revExpChart'), { scale: 2 });
+    doc.addImage(chartCanvas.toDataURL('image/png'), 'PNG', margin, 110, contentWidth, 60);
+
+    // 4. SECONDARY DATA GRID (Two Columns)
+    doc.text("Console Distribution", margin, 185);
+    doc.text("Payment Methods", margin + (contentWidth / 2) + 5, 185);
+
+    // Console Chart Capture
+    const consoleCanvas = await html2canvas(document.getElementById('consoleRevChart'), { scale: 2 });
+    doc.addImage(consoleCanvas.toDataURL('image/png'), 'PNG', margin, 190, (contentWidth / 2) - 5, 50);
+
+    // Payment Methods Table Style
+    const paymentRows = paymentMethods.map(p => [p.name, `${p.value}%`]);
+    doc.autoTable({
+        startY: 190,
+        margin: { left: margin + (contentWidth / 2) + 5 },
+        tableWidth: (contentWidth / 2) - 5,
+        head: [['Method', 'Volume']],
+        body: paymentRows,
+        theme: 'striped',
+        headStyles: { fillColor: colors.primary },
+        styles: { fontSize: 8 }
+    });
+
+    // 5. FOOTER & PAGE NUMBERING
+    const pageCount = doc.internal.getNumberOfPages();
+    for(let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(160);
+        doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, 287, { align: "center" });
+        doc.text("© 2026 GameCenter Management System", margin, 287);
+    }
+
+    // DOWNLOAD
+    doc.save(`Performance_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+    showToast("Professional PDF Downloaded");
+}
